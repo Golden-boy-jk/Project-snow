@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Новогодняя деревня</title>
+
+    <!-- Шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --beat: 0;
+            --accent: #ffd76b;
+            --accent2: #ff4b7d;
+            --accent3: #4be3ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #020514;
+            color: #f5f7ff;
+            overflow: hidden;
+        }
+
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ТВОЯ картинка */
+        .bg {
+            position: absolute;
+            inset: 0;
+            background-image: url("image1.jpg"); /* <= твой файл */
+            background-size: cover;
+            background-position: center;
+            filter: saturate(1.05) contrast(1.05);
+            transform: scale(1.02);
+        }
+
+        .overlay-gradient {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top, rgba(0,0,0,0.15), transparent 55%),
+                linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.6));
+            mix-blend-mode: multiply;
+        }
+
+        /* Снег */
+        #snow {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        /* Звезда — чуть ниже, ближе к макушке ёлки */
+        .tree-star {
+            position: absolute;
+            top: 15vh;           /* было 8vh — поэтому "уехала" */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            pointer-events: none;
+        }
+
+        .tree-star::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle, #ffffff 0 25%, var(--accent) 25% 55%, transparent 60%);
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+            filter:
+                drop-shadow(0 0 calc(12px + 22px * var(--beat)) #ffe9a9)
+                drop-shadow(0 0 calc(6px + 10px * var(--beat)) #fff5c4);
+            animation: star-spin 18s linear infinite;
+        }
+
+        @keyframes star-spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        .lights-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .lights-row {
+            position: absolute;
+            display: flex;
+            gap: 1.5vw;
+        }
+
+        .lights-row.top-left {
+            top: 18vh;
+            left: 7vw;
+        }
+        .lights-row.top-right {
+            top: 18vh;
+            right: 7vw;
+        }
+
+        .light-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--color, var(--accent));
+            box-shadow:
+                0 0 calc(4px + 10px * (0.4 + var(--beat))) currentColor,
+                0 0 calc(10px + 16px * (0.5 + var(--beat))) currentColor;
+            opacity: 0.75;
+            animation: flicker 2.2s ease-in-out infinite alternate;
+            animation-delay: var(--delay, 0s);
+            mix-blend-mode: screen;
+        }
+
+        @keyframes flicker {
+            0%   { opacity: 0.35; transform: translateY(0); }
+            30%  { opacity: 0.9;  transform: translateY(-1px); }
+            60%  { opacity: 0.6; }
+            100% { opacity: 1;   transform: translateY(1px); }
+        }
+
+        .ui-panel {
+            position: absolute;
+            bottom: 7vh;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1.8rem 2.4rem;
+            min-width: min(540px, 90vw);
+            background: linear-gradient(135deg, rgba(3,10,25,0.95), rgba(6,20,38,0.9));
+            border-radius: 24px;
+            box-shadow:
+                0 0 30px rgba(0,0,0,0.8),
+                0 0 40px rgba(0, 200, 255, 0.25);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .ui-panel h1 {
+            font-size: clamp(1.4rem, 2vw + 0.5rem, 1.9rem);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        .ui-panel p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 1.4rem;
+            line-height: 1.5;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            border-radius: 999px;
+            padding: 0.7rem 1.6rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: radial-gradient(circle at 0 0, #fff 0 8%, var(--accent2) 25%, #9b2cff 100%);
+            color: #fff;
+            box-shadow:
+                0 10px 25px rgba(0,0,0,0.8),
+                0 0 calc(10px + 20px * var(--beat)) rgba(255, 75, 125, 0.7);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px) scale(1.02);
+            filter: brightness(1.07);
+        }
+
+        button:active {
+            transform: translateY(1px) scale(0.99);
+            box-shadow:
+                0 4px 10px rgba(0,0,0,0.7),
+                0 0 18px rgba(255, 75, 125, 0.75);
+        }
+
+        .hint {
+            font-size: 0.78rem;
+            opacity: 0.65;
+        }
+
+        @media (max-width: 768px) {
+            .ui-panel {
+                padding: 1.4rem 1.6rem;
+                bottom: 4vh;
+            }
+            .lights-row.top-left,
+            .lights-row.top-right {
+                top: 16vh;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="scene">
+    <div class="bg"></div>
+    <div class="overlay-gradient"></div>
+
+    <canvas id="snow"></canvas>
+
+    <div class="tree-star"></div>
+
+    <div class="lights-layer">
+        <div class="lights-row top-left">
+            <div class="light-dot" style="--color: var(--accent);  --delay: 0s;"></div>
+            <div class="light-dot" style="--color: var(--accent2); --delay: .3s;"></div>
+            <div class="light-dot" style="--color: var(--accent3); --delay: .6s;"></div>
+            <div class="light-dot" style="--color: var(--accent2); --delay: .9s;"></div>
+            <div class="light-dot" style="--color: var(--accent3); --delay: 1.2s;"></div>
+        </div>
+
+        <div class="lights-row top-right">
+            <div class="light-dot" style="--color: var(--accent3); --delay: .2s;"></div>
+            <div class="light-dot" style="--color: var(--accent2); --delay: .5s;"></div>
+            <div class="light-dot" style="--color: var(--accent);  --delay: .8s;"></div>
+            <div class="light-dot" style="--color: var(--accent3); --delay: 1.1s;"></div>
+            <div class="light-dot" style="--color: var(--accent2); --delay: 1.4s;"></div>
+        </div>
+    </div>
+
+    <div class="ui-panel">
+        <h1>Новогодняя деревня</h1>
+        <p>
+            Включай музыку, смотри на снег и огоньки — и пусть страница превращается
+            в маленький зимний город, где всегда пахнет мандаринами и горячим шоколадом. 🎄
+        </p>
+        <div class="controls">
+            <button id="playBtn">▶ Включить музыку</button>
+            <span class="hint">На телефоне нужно нажать кнопку, чтобы звук запустился.</span>
+        </div>
+    </div>
+</div>
+
+<!-- Твой трек -->
+<audio id="music" src="music.mp3" loop preload="auto"></audio>
+
+<script>
+    // ---------- СНЕГ ----------
+    const canvas = document.getElementById("snow");
+    const ctx = canvas.getContext("2d");
+    let flakes = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const flakesCount = Math.floor(window.innerWidth / 6);
+        flakes = [];
+        for (let i = 0; i < flakesCount; i++) {
+            flakes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 2 + 1,
+                speedY: Math.random() * 0.7 + 0.4,
+                speedX: Math.random() * 0.5 - 0.25,
+                opacity: Math.random() * 0.5 + 0.3
+            });
+        }
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function drawSnow() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+
+        for (const flake of flakes) {
+            ctx.globalAlpha = flake.opacity;
+            ctx.beginPath();
+            ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            flake.y += flake.speedY;
+            flake.x += flake.speedX;
+
+            if (flake.y > canvas.height) {
+                flake.y = -flake.r;
+                flake.x = Math.random() * canvas.width;
+            }
+        }
+        ctx.restore();
+    }
+
+    // ---------- МУЗЫКА + AUDIO API ----------
+    const playBtn = document.getElementById("playBtn");
+    const audio = document.getElementById("music");
+
+    let audioCtx = null;
+    let analyser = null;
+    let dataArray = null;
+    let isPlaying = false;
+
+    playBtn.addEventListener("click", async () => {
+        try {
+            // Первый запуск — создаём контекст и анализатор
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaElementSource(audio);
+
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+            }
+
+            // На всякий случай — если контекст приостановлен
+            if (audioCtx.state === "suspended") {
+                await audioCtx.resume();
+            }
+
+            if (!isPlaying) {
+                await audio.play();      // <<< здесь реальный запуск
+                isPlaying = true;
+                playBtn.textContent = "⏸ Пауза";
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.textContent = "▶ Включить музыку";
+                document.documentElement.style.setProperty("--beat", "0");
+            }
+        } catch (err) {
+            console.error("Audio error:", err);
+        }
+    });
+
+    // ---------- АНИМАЦИЯ ----------
+    function animate() {
+        requestAnimationFrame(animate);
+        drawSnow();
+
+        if (analyser && isPlaying) {
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            const avg = sum / dataArray.length;
+            const beat = Math.min(1, (avg / 255) * 1.4);
+            document.documentElement.style.setProperty("--beat", beat.toFixed(3));
+        }
+    }
+    animate();
+</script>
+</body>
+</html>
