@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <title>Новогодняя деревня</title>
 
+    <!-- ВАЖНО для мобильных Android/iOS -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+
     <!-- Шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,12 +32,14 @@
             background: #020514;
             color: #f5f7ff;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent; /* приятнее на мобильных */
         }
 
         .scene {
             position: relative;
             width: 100vw;
             height: 100vh;
+            min-height: 100dvh; /* чтобы не обрезало из-за адресной строки на мобилках */
         }
 
         /* Фон — твоя картинка */
@@ -232,7 +238,8 @@
             outline: none;
             cursor: pointer;
             border-radius: 999px;
-            padding: 8px 0;
+            padding: 10px 0;
+            min-height: 40px; /* нормальный тач-таргет */
             font-size: 0.8rem;
             font-weight: 600;
             letter-spacing: 0.04em;
@@ -338,10 +345,12 @@
             opacity: 1;
         }
 
-        /* Мобильная адаптация */
+        /* Мобильная адаптация (общая) */
         @media (max-width: 768px) {
             .tree-text {
                 transform: translate(-50%, -55%);
+                white-space: normal;       /* разрешаем перенос текста на мобилках */
+                padding: 0 0.75rem;
             }
 
             .tree-text-main {
@@ -370,7 +379,8 @@
 
             .btn {
                 font-size: 0.75rem;
-                padding: 7px 0;
+                padding: 8px 0;
+                min-height: 38px;
             }
 
             .gift-card {
@@ -383,6 +393,23 @@
 
             .gift-text {
                 font-size: 0.85rem;
+            }
+        }
+
+        /* Очень узкие / маленькие экраны (старые Android, SE и т.п.) */
+        @media (max-width: 400px) {
+            .tree-text-main {
+                font-size: 1.5rem;
+                letter-spacing: 0.05em;
+            }
+
+            .tree-text {
+                transform: translate(-50%, -52%);
+                padding: 0 0.5rem;
+            }
+
+            .ui-panel {
+                width: 200px;
             }
         }
     </style>
@@ -462,7 +489,9 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const flakesCount = Math.floor(window.innerWidth / 2); // плотный снег
+        // Ограничиваем максимум, чтобы на больших мониторах не было слишком тяжело
+        const baseWidth = Math.min(window.innerWidth, 900);
+        const flakesCount = Math.floor(baseWidth / 2); // плотный, но разумный снег
 
         flakes = [];
         for (let i = 0; i < flakesCount; i++) {
@@ -501,7 +530,7 @@
         ctx.restore();
     }
 
-    // ---------- МУЗЫКА (без Web Audio API, надёжный вариант) ----------
+    // ---------- МУЗЫКА (надёжный вариант) ----------
     const playBtn = document.getElementById("playBtn");
     const audio = document.getElementById("music");
     let isPlaying = false;
@@ -519,7 +548,7 @@
             }
         } catch (err) {
             console.error("Audio error:", err);
-            alert("Браузер заблокировал автозапуск звука. Попробуй нажать ещё раз.");
+            alert("Браузер заблокировал запуск звука. Попробуй нажать ещё раз или включить звук на устройстве.");
         }
     });
 
