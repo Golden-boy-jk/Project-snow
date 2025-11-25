@@ -11,7 +11,7 @@
 
     <style>
         :root {
-            --beat: 0;
+            --beat: 0.4;          /* "дыхание" огоньков 0..1 */
             --accent: #ffd76b;
             --accent2: #ff4b7d;
             --accent3: #4be3ff;
@@ -36,11 +36,11 @@
             height: 100vh;
         }
 
-        /* ТВОЯ картинка */
+        /* Фон — твоя картинка */
         .bg {
             position: absolute;
             inset: 0;
-            background-image: url("image1.jpg"); /* <= твой файл */
+            background-image: url("image1.jpg");
             background-size: cover;
             background-position: center;
             filter: saturate(1.05) contrast(1.05);
@@ -63,44 +63,85 @@
             pointer-events: none;
         }
 
-        /* Звезда — чуть ниже, ближе к макушке ёлки */
-        .tree-star {
+        /* --- Центральная неоновая надпись с искрами --- */
+        .tree-text {
             position: absolute;
-            top: 15vh;           /* было 8vh — поэтому "уехала" */
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 70px;
+            transform: translate(-50%, -60%);
+            text-align: center;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 5;
+        }
+
+        .tree-text-main {
+            display: inline-block;
+            font-size: 3.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #ffffff;
+            text-shadow:
+                0 0 8px #ffffff,
+                0 0 16px #dffaff,
+                0 0 28px #8be9ff,
+                0 0 48px #4be3ff,
+                0 0 80px #4be3ff;
+            animation: text-glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes text-glow {
+            0% {
+                opacity: 0.9;
+                text-shadow:
+                    0 0 6px #fff,
+                    0 0 14px #b5f2ff,
+                    0 0 28px #6cdfff,
+                    0 0 50px #4be3ff,
+                    0 0 90px #4be3ff;
+            }
+            100% {
+                opacity: 1;
+                text-shadow:
+                    0 0 10px #fff,
+                    0 0 20px #e7fbff,
+                    0 0 40px #a4f4ff,
+                    0 0 70px #5cdfff,
+                    0 0 120px #4be3ff;
+            }
+        }
+
+        .spark {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff 0 40%, rgba(255,255,255,0) 70%);
+            box-shadow:
+                0 0 6px rgba(255,255,255,0.9),
+                0 0 16px #ffe66d;
+            opacity: 0;
             pointer-events: none;
         }
 
-        .tree-star::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle, #ffffff 0 25%, var(--accent) 25% 55%, transparent 60%);
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
-            filter:
-                drop-shadow(0 0 calc(12px + 22px * var(--beat)) #ffe9a9)
-                drop-shadow(0 0 calc(6px + 10px * var(--beat)) #fff5c4);
-            animation: star-spin 18s linear infinite;
-        }
+        .spark-1 { top: -40px; left: -80px; animation: spark-fly 1.8s linear infinite; }
+        .spark-2 { top: -50px; right: -90px; animation: spark-fly 2.2s linear infinite 0.3s; }
+        .spark-3 { bottom: -10px; left: -100px; animation: spark-fly 2.1s linear infinite 0.6s; }
+        .spark-4 { bottom: 0; right: -70px; animation: spark-fly 1.7s linear infinite 0.9s; }
 
-        @keyframes star-spin {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
+        @keyframes spark-fly {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.3);
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(40px, -40px) scale(0);
+            }
         }
 
         .lights-layer {
@@ -145,87 +186,203 @@
             100% { opacity: 1;   transform: translateY(1px); }
         }
 
+        /* МАЛЕНЬКАЯ ПАНЕЛЬ */
         .ui-panel {
             position: absolute;
-            bottom: 7vh;
+            bottom: 4vh;
             left: 50%;
             transform: translateX(-50%);
-            padding: 1.8rem 2.4rem;
-            min-width: min(540px, 90vw);
-            background: linear-gradient(135deg, rgba(3,10,25,0.95), rgba(6,20,38,0.9));
-            border-radius: 24px;
+            width: 260px;
+            padding: 12px 16px;
+            background:
+                linear-gradient(135deg, rgba(10,16,40,0.96), rgba(6,20,60,0.94));
+            border-radius: 18px;
             box-shadow:
-                0 0 30px rgba(0,0,0,0.8),
-                0 0 40px rgba(0, 200, 255, 0.25);
-            backdrop-filter: blur(18px);
-            border: 1px solid rgba(255,255,255,0.12);
+                0 0 18px rgba(0,0,0,0.8),
+                0 0 calc(18px + 14px * var(--beat)) rgba(0, 200, 255, 0.35);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.15);
+            text-align: center;
         }
 
         .ui-panel h1 {
-            font-size: clamp(1.4rem, 2vw + 0.5rem, 1.9rem);
+            font-size: 1rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            margin-bottom: 0.6rem;
+            margin-bottom: 4px;
         }
 
         .ui-panel p {
-            font-size: 0.95rem;
+            font-size: 0.72rem;
             opacity: 0.9;
-            margin-bottom: 1.4rem;
-            line-height: 1.5;
+            margin-bottom: 10px;
+            line-height: 1.3;
         }
 
         .controls {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            align-items: center;
+            flex-direction: column;
+            gap: 6px;
+            align-items: stretch;
         }
 
-        button {
+        .btn {
             border: none;
             outline: none;
             cursor: pointer;
             border-radius: 999px;
-            padding: 0.7rem 1.6rem;
-            font-size: 0.95rem;
+            padding: 8px 0;
+            font-size: 0.8rem;
             font-weight: 600;
             letter-spacing: 0.04em;
             text-transform: uppercase;
-            background: radial-gradient(circle at 0 0, #fff 0 8%, var(--accent2) 25%, #9b2cff 100%);
             color: #fff;
-            box-shadow:
-                0 10px 25px rgba(0,0,0,0.8),
-                0 0 calc(10px + 20px * var(--beat)) rgba(255, 75, 125, 0.7);
             transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
         }
 
-        button:hover {
+        .btn-primary {
+            background: radial-gradient(circle at 0 0, #fff 0 8%, var(--accent2) 25%, #9b2cff 100%);
+            box-shadow:
+                0 10px 20px rgba(0,0,0,0.8),
+                0 0 calc(8px + 14px * var(--beat)) rgba(255, 75, 125, 0.7);
+        }
+
+        .btn-secondary {
+            margin-top: 4px;
+            background: linear-gradient(135deg, #28c76f, #00bcd4);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+        }
+
+        .btn:hover {
             transform: translateY(-1px) scale(1.02);
             filter: brightness(1.07);
         }
 
-        button:active {
-            transform: translateY(1px) scale(0.99);
+        .btn:active {
+            transform: translateY(1px) scale(0.98);
             box-shadow:
                 0 4px 10px rgba(0,0,0,0.7),
-                0 0 18px rgba(255, 75, 125, 0.75);
+                0 0 14px rgba(255, 75, 125, 0.75);
         }
 
         .hint {
-            font-size: 0.78rem;
-            opacity: 0.65;
+            font-size: 0.7rem;
+            opacity: 0.7;
         }
 
+        /* Прячем нативный плеер — он только для звука */
+        audio {
+            display: none;
+        }
+
+        /* Модал "Подарочек" */
+        .gift-modal {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 60%),
+                        rgba(2, 5, 20, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 10;
+        }
+
+        .gift-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .gift-card {
+            position: relative;
+            max-width: 340px;
+            width: 90vw;
+            padding: 24px 22px 18px;
+            border-radius: 18px;
+            background: linear-gradient(145deg, rgba(6,16,40,0.98), rgba(20,40,80,0.98));
+            box-shadow:
+                0 0 25px rgba(0,0,0,0.8),
+                0 0 40px rgba(0, 200, 255, 0.35);
+            border: 1px solid rgba(255,255,255,0.16);
+            text-align: center;
+            color: #f5f7ff;
+        }
+
+        .gift-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .gift-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.95;
+            margin-bottom: 14px;
+        }
+
+        .gift-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.75;
+        }
+
+        .gift-close:hover {
+            opacity: 1;
+        }
+
+        /* Мобильная адаптация */
         @media (max-width: 768px) {
-            .ui-panel {
-                padding: 1.4rem 1.6rem;
-                bottom: 4vh;
+            .tree-text {
+                transform: translate(-50%, -55%);
             }
-            .lights-row.top-left,
-            .lights-row.top-right {
-                top: 16vh;
+
+            .tree-text-main {
+                font-size: 1.8rem;
+                letter-spacing: 0.08em;
+            }
+
+            .spark {
+                width: 6px;
+                height: 6px;
+            }
+
+            .ui-panel {
+                width: 220px;
+                bottom: 2vh;
+                padding: 10px 14px;
+            }
+
+            .ui-panel h1 {
+                font-size: 0.9rem;
+            }
+
+            .ui-panel p {
+                font-size: 0.68rem;
+            }
+
+            .btn {
+                font-size: 0.75rem;
+                padding: 7px 0;
+            }
+
+            .gift-card {
+                padding: 20px 16px 16px;
+            }
+
+            .gift-title {
+                font-size: 1rem;
+            }
+
+            .gift-text {
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -237,7 +394,14 @@
 
     <canvas id="snow"></canvas>
 
-    <div class="tree-star"></div>
+    <!-- Центральная неоновая надпись + искры -->
+    <div class="tree-text">
+        <span class="tree-text-main">С НОВЫМ 2025 ГОДОМ!</span>
+        <span class="spark spark-1"></span>
+        <span class="spark spark-2"></span>
+        <span class="spark spark-3"></span>
+        <span class="spark spark-4"></span>
+    </div>
 
     <div class="lights-layer">
         <div class="lights-row top-left">
@@ -260,18 +424,33 @@
     <div class="ui-panel">
         <h1>Новогодняя деревня</h1>
         <p>
-            Включай музыку, смотри на снег и огоньки — и пусть страница превращается
-            в маленький зимний город, где всегда пахнет мандаринами и горячим шоколадом. 🎄
+            Включай музыку, смотри на снег и огоньки —
+            и пусть страница превращается в маленький зимний город. 🎄
         </p>
         <div class="controls">
-            <button id="playBtn">▶ Включить музыку</button>
-            <span class="hint">На телефоне нужно нажать кнопку, чтобы звук запустился.</span>
+            <button id="playBtn" class="btn btn-primary">▶ Включить музыку</button>
+            <button id="giftBtn" class="btn btn-secondary">🎁 Подарочек</button>
+            <span class="hint">Нажми ещё раз — будет пауза.</span>
         </div>
     </div>
 </div>
 
-<!-- Твой трек -->
-<audio id="music" src="music.mp3" loop preload="auto"></audio>
+<!-- Только звук, без второго проигрывателя -->
+<audio id="music" src="music.mp3" preload="auto" loop></audio>
+
+<!-- Модал с поздравлением -->
+<div class="gift-modal" id="giftModal">
+    <div class="gift-card">
+        <div class="gift-close" id="giftClose">✕</div>
+        <div class="gift-title">С Новым годом! 🎄</div>
+        <div class="gift-text">
+            Пусть в 2025 году у тебя будет больше ярких проектов, сильного кода,
+            тёплых людей рядом и моментов, которые хочется сохранить навсегда.
+            Немного магии, немного снега и много счастья. ✨
+        </div>
+        <button class="btn btn-secondary" id="giftOk">Спасибо 💙</button>
+    </div>
+</div>
 
 <script>
     // ---------- СНЕГ ----------
@@ -283,7 +462,8 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const flakesCount = Math.floor(window.innerWidth / 6);
+        const flakesCount = Math.floor(window.innerWidth / 2); // плотный снег
+
         flakes = [];
         for (let i = 0; i < flakesCount; i++) {
             flakes.push({
@@ -321,69 +501,73 @@
         ctx.restore();
     }
 
-    // ---------- МУЗЫКА + AUDIO API ----------
+    // ---------- МУЗЫКА (без Web Audio API, надёжный вариант) ----------
     const playBtn = document.getElementById("playBtn");
     const audio = document.getElementById("music");
-
-    let audioCtx = null;
-    let analyser = null;
-    let dataArray = null;
     let isPlaying = false;
 
     playBtn.addEventListener("click", async () => {
         try {
-            // Первый запуск — создаём контекст и анализатор
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioCtx.createMediaElementSource(audio);
-
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 256;
-
-                const bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-            }
-
-            // На всякий случай — если контекст приостановлен
-            if (audioCtx.state === "suspended") {
-                await audioCtx.resume();
-            }
-
             if (!isPlaying) {
-                await audio.play();      // <<< здесь реальный запуск
+                await audio.play();
                 isPlaying = true;
                 playBtn.textContent = "⏸ Пауза";
             } else {
                 audio.pause();
                 isPlaying = false;
                 playBtn.textContent = "▶ Включить музыку";
-                document.documentElement.style.setProperty("--beat", "0");
             }
         } catch (err) {
             console.error("Audio error:", err);
+            alert("Браузер заблокировал автозапуск звука. Попробуй нажать ещё раз.");
         }
     });
 
-    // ---------- АНИМАЦИЯ ----------
-    function animate() {
-        requestAnimationFrame(animate);
-        drawSnow();
+    audio.addEventListener("play", () => {
+        isPlaying = true;
+        playBtn.textContent = "⏸ Пауза";
+    });
 
-        if (analyser && isPlaying) {
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) {
-                sum += dataArray[i];
-            }
-            const avg = sum / dataArray.length;
-            const beat = Math.min(1, (avg / 255) * 1.4);
-            document.documentElement.style.setProperty("--beat", beat.toFixed(3));
-        }
+    audio.addEventListener("pause", () => {
+        isPlaying = false;
+        playBtn.textContent = "▶ Включить музыку";
+    });
+
+    // ---------- МОДАЛ "ПОДАРОК" ----------
+    const giftBtn = document.getElementById("giftBtn");
+    const giftModal = document.getElementById("giftModal");
+    const giftClose = document.getElementById("giftClose");
+    const giftOk = document.getElementById("giftOk");
+
+    const closeGift = () => giftModal.classList.remove("show");
+
+    giftBtn.addEventListener("click", () => {
+        giftModal.classList.add("show");
+    });
+
+    giftClose.addEventListener("click", closeGift);
+    giftOk.addEventListener("click", closeGift);
+    giftModal.addEventListener("click", (e) => {
+        if (e.target === giftModal) closeGift();
+    });
+
+    // ---------- АНИМАЦИЯ / "СВЕТОМУЗЫКА" ----------
+    let start = null;
+    function animate(timestamp) {
+        if (!start) start = timestamp;
+        const t = (timestamp - start) / 1000;
+
+        // когда музыка играет — пульсация сильнее, когда нет — мягче
+        const base = isPlaying ? 0.45 : 0.25;
+        const amp  = isPlaying ? 0.35 : 0.15;
+        const beat = base + amp * (1 + Math.sin(t * 2)) / 2;
+
+        document.documentElement.style.setProperty("--beat", beat.toFixed(3));
+
+        drawSnow();
+        requestAnimationFrame(animate);
     }
-    animate();
+    requestAnimationFrame(animate);
 </script>
 </body>
 </html>
